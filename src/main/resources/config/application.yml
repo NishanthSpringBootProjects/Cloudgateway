@@ -1,0 +1,30 @@
+spring:
+  cloud:
+    gateway:
+          routes:
+            - id: Contact-service
+              uri: lb://CONTACTBOOK         #here we are using resgistry service to find the hostname of contactbook application
+              predicates:
+                - Path=/contacts/**
+              filters:
+#                - StripPrefix=1 # Removes /service1 from the path
+                - AddRequestHeader=X-Gateway-Identifier, gateway-only # Adds a header
+                - AddResponseHeader=X-Gateway-Identifier, gateway-only # Adds a header
+            - id: Error-service
+              uri: lb://ERRORCODES        #here we are using resgistry service to find the hostname of contactbook application
+              predicates:                 # we can also use static url  in "uri: lb://ERRORCODES" to "uri:http://localhost:9090" which will elimate the use of service registry 
+                - Path=/errorcodes/**
+              filters:
+#                - StripPrefix=1 # Removes /service1 from the path
+                - AddRequestHeader=X-Gateway-Identifier, gateway-only # Adds a header
+                - AddResponseHeader=X-Gateway-Identifier, gateway-only # Adds a header
+  application:
+    name: CloudGateWay
+server:
+  port: 2000
+eureka:
+   client:
+      register-with-eureka: true
+      fetch-registry: true
+      service-url: 
+         defaultZone : http://localhost:8761/eureka/
